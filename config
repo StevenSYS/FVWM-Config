@@ -2,7 +2,7 @@ Read options
 
 DesktopConfiguration per-monitor 
 
- This is to fix screen tearing
+# This is to fix screen tearing
 exec exec picom
 
 # Start Function
