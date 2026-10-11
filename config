@@ -1,38 +1,8 @@
-##################################
-#
-#  This config file is organized as follows:
-#
-#    1: Functions
-#    2: Styles
-#    3: Colorsets
-#    4: Menus
-#    5: Bindings
-#    6: Decor
-#    7: Modules
-#
-#################################
-
-InfoStoreAdd terminal gnome-terminal
-InfoStoreAdd colorScheme blue.cs 
+Read options
 
 DesktopConfiguration per-monitor 
 
-###########
-# 1: Functions
-#
-# Fvwm can use custom functions for various tasks.
-# The syntax for defining a function named FunctionName is:
-#
-#   DestroyFunc FunctionName
-#   AddToFunc FunctionName
-#   + I [Action to do Immediately]
-#   + C [Action to do on a Mouse Click]
-#   + D [Action to do on a Mouse Double Click]
-#   + H [Action to do on a Mouse Hold]
-#   + M [Action to do on a Mouse Motion]
-###########
-
-# This is to fix screen tearing
+ This is to fix screen tearing
 exec exec picom
 
 # Start Function
@@ -63,10 +33,6 @@ DestroyFunc ToggleTitle
 AddToFunc   ToggleTitle
 + I ThisWindow (HasTitle) WindowStyle !Title
 + I TestRc (NoMatch) WindowStyle Title
-
-#############
-# 2: Styles #
-#############
 
 # Desktops and Pages
 DesktopName 0 Main
@@ -115,35 +81,8 @@ Style ConfirmQuit !Title, PositionPlacement Center, WindowListSkip, Layer 6
 Style FvwmIdent WindowListSkip
 Style audacious !Title, !Borders, !Handles, Layer 6
 
-#######
-# 3: Colorsets
-#
-# Colorsets can be used to configure the color of the various
-# parts of fvwm such as window decor, menus, modules, etc.
-#
-# Colorset Convention
-#
-#   0 - Default
-#   1 - Inactive Windows
-#   2 - Active Window
-#   3 - Inactive Windows Borders
-#   4 - Active Windows Borders
-#   5 - Menu - Inactive Item
-#   6 - Menu - Active Item
-#   7 - Menu - Grayed Item
-#   8 - Menu - Title
-#   9 - Reserved
-#  10+ Modules
-#      10 - Module Default
-#      11 - Module Hilight
-#      12 - Module ActiveButton (Mouse Hover)
-#      13 - FvwmPager Active Page
-###########
 Read $[FVWM_USERDIR]/colorSchemes/$[infostore.colorScheme]
 
-###########
-# 4: Menus
-###########
 MenuStyle * MenuColorset 5, ActiveColorset 6, GreyedColorset 7, TitleColorset 8
 MenuStyle * Hilight3DOff, HilightBack, HilightTitleBack, SeparatorsLong
 MenuStyle * TrianglesSolid, TrianglesUseFore
@@ -165,26 +104,7 @@ AddToMenu   MenuWindowOps
 + "$[gt.Stays On Top]%icons/win/top.png%"       Pick (CirculateHit) Layer 0 6
 + "$[gt.Stays Put]%icons/win/stays.png%"        Pick (CirculateHit) Layer 0 4
 
-#######
-# 5: Mouse and Key bindings
-#
-# Contexts:
-#     R = Root Window                 rrrrrrrrrrrrrrrrrrrrrr
-#     W = Application Window          rIrrrr<---------^rrrrr
-#     F = Frame Corners               rrrrrr[13TTTT642]rrrrr
-#     S = Frame Sides                 rIrrrr[wwwwwwwww]rrrrr
-#     T = Title Bar                   rrrrrr[wwwwwwwww]rrrrr
-#     I = Icon                        rIrrrrv_________>rrrrr
-#                                     rrrrrrrrrrrrrrrrrrrrrr
-#
-#     Numbers are buttons: [1 3 5 7 9  TTTTT  0 8 6 4 2]
-#
-# Modifiers: (A)ny, (C)ontrol, (S)hift, (M)eta, (N)othing
-#
-# Format: Key <X>  <Context> <Modifier> <Action>
-#         Mouse <X> <Context> <Modifier> <Action>
-####################
-Silent Key Tab     A M WindowList Root c c NoDeskSort, NoGeometry, SelectOnRelease Meta_L, CurrentAtEnd
+Silent Key Tab A M WindowList Root c c NoDeskSort, NoGeometry, SelectOnRelease Meta_L, CurrentAtEnd
 Silent Key F4 A M Close Root c c NoDeskSort, NoGeometry, SelectOnRelease Meta_L, CurrentAtEnd
 Silent Key T A C1 Exec exec $[infostore.terminal]
 Silent Key Escape A C Exec rofi -modi "drun,calc" -show drun
@@ -194,7 +114,7 @@ Silent Key Prior A S1 Exec exec brightnessctl set 1%+
 Silent Key Next A S1 Exec exec brightnessctl set 1%-
 
 Silent Key Home A S1 Exec exec brightnessctl set 100%
-Silent Key End A S1 Exec exec brightnessctl set 48
+Silent Key End A S1 Exec exec brightnessctl set $[infostore.minBrightness]
 
 # Sound Volume
 Silent Key Prior A C1 Exec exec pactl set-sink-volume @DEFAULT_SINK@ +5%
@@ -206,15 +126,15 @@ Silent Key Next A C1S Exec exec pactl set-sink-volume @DEFAULT_SINK@ -1%
 Silent Key End A C1 Exec exec pactl set-sink-mute @DEFAULT_SINK@ toggle
 
 # Touchpad Toggle
-Silent Key Home A CS Exec exec xinput enable "ELAN0712:00 04F3:30FD Touchpad"
-Silent Key End A CS Exec exec xinput disable "ELAN0712:00 04F3:30FD Touchpad"
+Silent Key Home A CS Exec exec xinput enable $[infostore.touchpadId] 
+Silent Key End A CS Exec exec xinput disable $[infostore.touchpadId]
 
 # Screenshot
-Silent Key Print A A Exec exec gnome-screenshot --interactive
+Silent Key Print A A Exec exec $[infostore.screenshot] --interactive
 
 # DECtalk
-# Silent Key F A M Exec exec /home/steven/Documents/ra\ dom\ stuffz/Programs/DECtalk/say.sh READSELECTED
-# Silent Key G A M Exec exec /home/steven/Documents/ra\ dom\ stuffz/Programs/DECtalk/stop.sh
+# Silent Key F A M Exec exec $[infostore.decTalkPath]/say.sh READSELECTED
+# Silent Key G A M Exec exec $[infostore.decTalkPath]/stop.sh
 
 # Shuffle moves a window in a given direction until it hits another window.
 # These bindings will shuffle a window using the arrow keys.
@@ -232,27 +152,12 @@ Key Down    WTSF    CM  ShuffleDir down
 Key Left    WTSF    CM  ShuffleDir left
 Key Right   WTSF    CM  ShuffleDir right
 
-# Window Buttons: [1 3 5 7 9  TTTTT  0 8 6 4 2]
-#   1 - Open the WindowOps menu.
-#   2 - Close on single click, Destory on double click.
-#   4 - Maximize (right/middle button will only maximize vertical/horizontal)
-#   6 - Iconify (minimize)
 Mouse 1 2 A Close
 
 Mouse 3 T    A Menu MenuWindowOps
 Mouse 1 T    A RaiseMoveX Move Maximize
 Mouse 1 FS   A RaiseMove Resize
 
-#######
-# 6: Window Decor
-#
-# Buttons Locations: [1 3 5 7 9  TTTTT  0 8 6 4 2]
-#
-#   1 - WindowOps Menu
-#   2 - Close
-#   4 - Maximize
-#   6 - Minimize
-###########
 TitleStyle Centered Height 24
 TitleStyle ActiveDown -- Flat
 TitleStyle Inactive -- Flat
@@ -265,10 +170,6 @@ AddButtonStyle 2 Inactive TiledPixmap closeInactive.png
 AddButtonStyle 2 Active TiledPixmap closeActive.png
 AddButtonStyle 2 ToggledInactive TiledPixmap closeInactive.png
 AddButtonStyle 2 ToggledActive TiledPixmap closeActive.png
-
-############
-# 7: Modules
-#############
 
 # FvwmIdent
 DestroyModuleConfig FvwmIdent:*
@@ -297,6 +198,3 @@ Test (x stalonetray) *TopPanel: (120x24, Swallow(NoClose,UseOld) \
 DestroyModuleConfig EventNewDesk:*
 *EventNewDesk: PassID
 *EventNewDesk: new_desk ChangeDesk
-
-# Local configuration file. For use with the default-config.
-Test (f $[FVWM_USERDIR]/local.config) Read $[FVWM_USERDIR]/local.config
