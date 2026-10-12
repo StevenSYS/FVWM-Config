@@ -1,12 +1,12 @@
-/* 
-	gcc `pkg-config gtk+-3.0 --cflags` wallpaperSelect.c -O2 -s -o wallpaperSelect `pkg-config gtk+-3.0 --libs`
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <gtk/gtk.h>
 
 int main(int argc, char *argv[]) {
+	char *fehFlag = "bg-fill";
+	char *fehBackground;
+	char command[255];
+	
 	gtk_init(&argc, &argv);
 	
 	GtkWidget *fileDialog = gtk_file_chooser_dialog_new(
@@ -25,21 +25,17 @@ int main(int argc, char *argv[]) {
 		"Do you want the wallpaper to be tiled?"
 	);
 	
-	if (gtk_dialog_run(GTK_DIALOG(fileDialog)) == GTK_RESPONSE_OK) {
-		char *fehFlag;
-		char *fehBackground = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileDialog));
-		char command[255];
-		
-		if (gtk_dialog_run(GTK_DIALOG(tileDialog)) == GTK_RESPONSE_YES) {
-			fehFlag = "bg-tile";
-		} else {
-			fehFlag = "bg-fill";
-		}
-		
-		sprintf(command, "feh --%s \"%s\"\n", fehFlag, fehBackground);
-		
-		system(command);
-		return 0;
+	if (gtk_dialog_run(GTK_DIALOG(fileDialog)) != GTK_RESPONSE_OK) {
+		return 1;
 	}
-	return 1;
+	
+	fehBackground = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileDialog));
+	
+	if (gtk_dialog_run(GTK_DIALOG(tileDialog)) == GTK_RESPONSE_YES) {
+		fehFlag = "bg-tile";
+	}
+	
+	sprintf(command, "feh --%s \"%s\"\n", fehFlag, fehBackground);
+	system(command);
+	return 0;
 }

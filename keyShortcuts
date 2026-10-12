@@ -1,0 +1,31 @@
+silent key T A C1 exec exec $[infostore.terminal]
+silent key Escape A C exec rofi -modi "drun,calc" -show drun
+
+# Backlight Brightness
+silent key Prior A S1 exec exec brightnessctl set 1%+
+silent key Next A S1 exec exec brightnessctl set 1%-
+
+silent key Home A S1 exec exec brightnessctl set 100%
+silent key End A S1 exec exec brightnessctl set $[infostore.minBrightness]
+
+# Sound Volume
+silent key Prior A C1 exec exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+silent key Next A C1 exec exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+
+silent key Prior A C1S exec exec pactl set-sink-volume @DEFAULT_SINK@ +1%
+silent key Next A C1S exec exec pactl set-sink-volume @DEFAULT_SINK@ -1%
+
+silent key End A C1 exec exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+# Touchpad Toggle
+silent key Home A CS exec exec xinput enable $[infostore.touchpadId] 
+silent key End A CS exec exec xinput disable $[infostore.touchpadId]
+
+# Screenshot
+test ($[infostore.enableScreenshot]) \
+	silent key Print A A exec exec $[infostore.screenshot] --interactive
+
+# DECtalk
+test ($[infostore.enableDECtalk]) \
+	silent key F A M exec exec "$[infostore.decTalkPath]/say.sh" READSELECTED \
+	silent key G A M exec exec "$[infostore.decTalkPath]/stop.sh"

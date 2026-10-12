@@ -1,0 +1,22 @@
+# Color Scheme
+
+# Original:
+# colorset 99 fg #FFFFFF, bg #404040, hi #505050, sh #202020
+colorset 99 fg #FFFFFF, bg #404040, hi #505050, sh #202020
+
+# Variables
+
+# Variables - Programs
+infoStoreAdd terminal TERMINAL-PROGRAM-GOES-HERE
+infoStoreAdd screenshot SCREENSHOT-PROGRAM-GOES-HERE
+infoStoreAdd decTalkPath "DECTALK PATH GOES HERE"
+
+# Variables - Laptop
+infoStoreAdd laptop false
+infoStoreAdd touchpadId "TOUCHPAD ID GOES HERE"
+infoStoreAdd minBrightness 0
+
+# Variables - Enable
+infoStoreAdd enablePicom false
+infoStoreAdd enableScreenshot false
+infoStoreAdd enableDECtalk false

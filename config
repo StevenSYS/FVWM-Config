@@ -1,200 +1,178 @@
-Read options
+# Options
+read options
 
-DesktopConfiguration per-monitor 
+infoStoreAdd baseColor #8080FF
 
-# This is to fix screen tearing
-exec exec picom
+# `24` is the height of the top panel.
+ewmhBaseStruts screen $[monitor.primary] 0 0 24 0
 
-# Start Function
-DestroyFunc StartFunction
-AddToFunc StartFunction
-+ I Module FvwmButtons TopPanel
-+ I Module FvwmEvent EventNewDesk
-+ I Exec ~/.fehbg
+# Default font
+defaultFont "xft:Sans:bold:size=8:antialias=true"
 
-# Mouse Bindings Functions
-DestroyFunc RaiseMoveX
-AddToFunc RaiseMoveX
-+ I Raise
-+ M $0
-+ D $1
+# Colorset
+colorset 1 fg #FFFFFF, bg #000000
+colorset 2 \
+	fg $[fg.cs99], \
+	bg $[bg.cs99], \
+	hi $[hilight.cs99], \
+	sh $[shadow.cs99]
 
-DestroyFunc RaiseMove
-AddToFunc RaiseMove
-+ I Raise
-+ M $0
+colorset 3 \
+	fg $[fg.cs99], \
+	bg $[bg.cs99.darken25], \
+	hi $[hilight.cs99.darken25], \
+	sh $[shadow.cs99.darken25]
 
-DestroyFunc MoveToCurrent
-AddToFunc MoveToCurrent
-+ I ThisWindow MoveToPage
-+ I ThisWindow MoveToDesk
+# Style
+style * \
+	mouseFocusClickRaises, \
+	clickToFocus, \
+	borderWidth 5, \
+	handleWidth 5, \
+	colorset 3, \
+	hilightcolorset 2, \
+	edgeMoveDelay 90, \
+	edgeMoveResistance 90, \
+	snapAttraction 8 windows
 
-DestroyFunc ToggleTitle
-AddToFunc   ToggleTitle
-+ I ThisWindow (HasTitle) WindowStyle !Title
-+ I TestRc (NoMatch) WindowStyle Title
+opaqueMoveSize unlimited
 
-# Desktops and Pages
-DesktopName 0 Main
-DesktopSize 1x1
+style topPanel \
+	!title, \
+	!borders, \
+	!handles, \
+	sticky, \
+	windowListSkip, \
+	neverFocus
 
-EdgeScroll 100 100
-EdgeResistance 451
-EdgeThickness 1
-Style * EdgeMoveDelay 90, EdgeMoveResistance 90
+style ConfirmQuit \
+	!title, \
+	positionPlacement center, \
+	windowListSkip, \
+	layer 6
 
-EwmhBaseStruts screen $[monitor.primary] 0 0 24 0
+style audacious \
+	!title, \
+	!borders, \
+	!handles, \
+	layer 6
 
-ClickTime 250
-MoveThreshold 3
+titleStyle centered height 24
+titleStyle activeDown -- flat
+titleStyle inactive -- flat
 
-Style * MouseFocusClickRaises, ClickToFocus
+buttonStyle all vector 2 0x0@5 0x0@5
+buttonStyle all toggledInactive -- flat
+buttonStyle all inactive -- flat
 
-# Default Font
-DefaultFont "xft:Sans:Bold:size=8:antialias=True"
+addButtonStyle 2 active tiledPixmap closeActive.png
+addButtonStyle 2 toggledActive tiledPixmap closeActive.png
+addButtonStyle 2 inactive tiledPixmap closeInactive.png
+addButtonStyle 2 toggledInactive tiledPixmap closeInactive.png
 
-# Window Placement
-Style * MinOverlapPlacement, GrabFocusOff, !UsePPosition
+menuStyle * \
+	menuColorset 3, \
+	activeColorset 2, \
+	greyedColorset 3, \
+	titleColorset 2, \
+	hilightBack, \
+	hilight3DOff, \
+	hilightTitleBack, \
+	separatorsLong, \
+	!automaticHotKeys \
 
-OpaqueMoveSize unlimited
-Style * SnapAttraction 8 Windows
+# Functions
+destroyFunc startFunction
+addToFunc startFunction
++ i module FvwmButtons topPanel
++ i module FvwmMFL
++ i test ($[infostore.enablePicom]) \
+	exec picom
 
-Style * DecorateTransient, StackTransientParent
-Style * !FPGrabFocusTransient, FPReleaseFocusTransient
+destroyFunc initFunction
+addToFunc initFunction
++ i module FvwmIconMan
++ i exec ~/.fehbg
 
-IgnoreModifiers L25
+destroyFunc exitFunction
+addToFunc exitFunction
++ i test ($[infostore.enablePicom]) \
+	exec killall picom
 
-# Decor Styles
-Style * BorderWidth 5, HandleWidth 5, MWMButtons, FvwmBorder, FirmBorder
-Style * Colorset 1, HilightColorset 2
+destroyFunc raiseMove
+addToFunc raiseMove
++ i raise
++ m $0
 
-Style * BorderColorset 3 4 3 4 3 4 3 4
-Style * HilightBorderColorset 4 8 4 8 4 8 4 8
+destroyFunc raiseMoveDC
+addToFunc raiseMoveDC
++ i raise
++ m $0
++ d $1
 
-Style * !Icon
-Style * Lenience
+# Taken from the default config file.
+destroyFunc moveDir
+addToFunc moveDir
++ i move shuffle layers $[w.layer] $[w.layer] snap windows $0
++ i warpToWindow 50 50
 
-# Window Specific Styles
-Style TopPanel !Title, !Borders, !Handles, Sticky, \
-                 WindowListSkip, NeverFocus
-Style ConfirmQuit !Title, PositionPlacement Center, WindowListSkip, Layer 6
-Style FvwmIdent WindowListSkip
-Style audacious !Title, !Borders, !Handles, Layer 6
+# Menus
+destroyMenu menuFvwmRoot
+addToMenu menuFvwmRoot "FVWM Menu" title
++ "$[gt.&Change Wallpaper]" exec ~/.fvwm/prg_wallpaperSelect
++ "" none 
++ "$[gt.&Restart FVWM]" restart
++ "$[gt.&Quit FVWM]" module FvwmScript FvwmScript-ConfirmQuit
 
-Read $[FVWM_USERDIR]/colorSchemes/$[infostore.colorScheme]
+destroyMenu menuWindow
+addToMenu menuWindow
++ "$[gt.&Always On Top]" pick (circulateHit) layer 0 6
++ "$[gt.&Disable Always On Top]" pick (circulateHit) layer 0 4
 
-MenuStyle * MenuColorset 5, ActiveColorset 6, GreyedColorset 7, TitleColorset 8
-MenuStyle * Hilight3DOff, HilightBack, HilightTitleBack, SeparatorsLong
-MenuStyle * TrianglesSolid, TrianglesUseFore
-MenuStyle * ItemFormat "%s%|%3.1i%5.3l%5l%5r%5.3>%|"
-MenuStyle * Font "xft:Sans:Bold:size=8:antialias=True"
+# Modules
+destroyModuleConfig topPanel:*
+*topPanel: geometry $[monitor.$[monitor.primary].width]x24-0+0@p
+*topPanel: colorset 1
+*topPanel: rows 24
+*topPanel: columns $[montior.$[monitor.primary].width]
+*topPanel: frame 0
+*topPanel: ( \
+	$[monitor.$[monitor.primary].width]x24, \
+	frame 0, \
+	swallow FvwmApplet-DigitalClock "FvwmScript digitalClock 1" \
+)
+test ($[infostore.laptop]) \
+	*topPanel: ( \
+		128x24, \
+		frame 0, \
+		swallow FvwmApplet-BatteryInfo "FvwmScript batteryInfo 1" \
+	)
 
-# Root Menu
-DestroyMenu MenuFvwmRoot
-AddToMenu   MenuFvwmRoot "Root Menu" Title
-+ "$[gt.&Change Wallpaper]"                Exec exec ~/.fvwm/wallpaperSelect
-+ ""                                       None
-+ "$[gt.Re&fresh]%icons/refresh.png%"      Refresh
-+ "$[gt.&Restart FVWM]%icons/restart.png%" Restart
-+ "$[gt.&Log Out]%icons/quit.png%"         Module FvwmScript FvwmScript-ConfirmQuit
+# Keyboard binds
+silent key Tab A M \
+	windowList root c c \
+	noDeskSort, \
+	noGeometry, \
+	selectOnRelease meta_l, \
+	currentAtEnd
 
-# Window Operations Menus
-DestroyMenu MenuWindowOps
-AddToMenu   MenuWindowOps
-+ "$[gt.Stays On Top]%icons/win/top.png%"       Pick (CirculateHit) Layer 0 6
-+ "$[gt.Stays Put]%icons/win/stays.png%"        Pick (CirculateHit) Layer 0 4
+silent key F4 A M \
+	close root c c \
+	noDeskSort, \
+	noGeometry, \
+	selectOnRelease meta_l, \
+	currentAtEnd
 
-Silent Key Tab A M WindowList Root c c NoDeskSort, NoGeometry, SelectOnRelease Meta_L, CurrentAtEnd
-Silent Key F4 A M Close Root c c NoDeskSort, NoGeometry, SelectOnRelease Meta_L, CurrentAtEnd
-Silent Key T A C1 Exec exec $[infostore.terminal]
-Silent Key Escape A C Exec rofi -modi "drun,calc" -show drun
+# Keyboard shortcuts
+key Up WTSF CM moveDir up
+key Down WTSF CM moveDir down
+key Left WTSF CM moveDir left
+key Right WTSF CM moveDir right
 
-# Backlight Brightness
-Silent Key Prior A S1 Exec exec brightnessctl set 1%+
-Silent Key Next A S1 Exec exec brightnessctl set 1%-
+read keyShortcuts
 
-Silent Key Home A S1 Exec exec brightnessctl set 100%
-Silent Key End A S1 Exec exec brightnessctl set $[infostore.minBrightness]
-
-# Sound Volume
-Silent Key Prior A C1 Exec exec pactl set-sink-volume @DEFAULT_SINK@ +5%
-Silent Key Next A C1 Exec exec pactl set-sink-volume @DEFAULT_SINK@ -5%
-
-Silent Key Prior A C1S Exec exec pactl set-sink-volume @DEFAULT_SINK@ +1%
-Silent Key Next A C1S Exec exec pactl set-sink-volume @DEFAULT_SINK@ -1%
-
-Silent Key End A C1 Exec exec pactl set-sink-mute @DEFAULT_SINK@ toggle
-
-# Touchpad Toggle
-Silent Key Home A CS Exec exec xinput enable $[infostore.touchpadId] 
-Silent Key End A CS Exec exec xinput disable $[infostore.touchpadId]
-
-# Screenshot
-Silent Key Print A A Exec exec $[infostore.screenshot] --interactive
-
-# DECtalk
-# Silent Key F A M Exec exec $[infostore.decTalkPath]/say.sh READSELECTED
-# Silent Key G A M Exec exec $[infostore.decTalkPath]/stop.sh
-
-# Shuffle moves a window in a given direction until it hits another window.
-# These bindings will shuffle a window using the arrow keys.
-#    Ctrl-Alt Up_Arrow     - Shuffle window up
-#    Ctrl-Alt Right_Arrow  - Shuffle window right
-#    Ctrl-Alt Down_Arrow   - Shuffle window down
-#    Ctrl-Alt Left_Arrow   - Shuffle window left
-DestroyFunc ShuffleDir
-AddToFunc   ShuffleDir
-+ I Move shuffle layers $[w.layer] $[w.layer] snap windows $0
-+ I WarpToWindow 50 50
-
-Key Up      WTSF    CM  ShuffleDir up
-Key Down    WTSF    CM  ShuffleDir down
-Key Left    WTSF    CM  ShuffleDir left
-Key Right   WTSF    CM  ShuffleDir right
-
-Mouse 1 2 A Close
-
-Mouse 3 T    A Menu MenuWindowOps
-Mouse 1 T    A RaiseMoveX Move Maximize
-Mouse 1 FS   A RaiseMove Resize
-
-TitleStyle Centered Height 24
-TitleStyle ActiveDown -- Flat
-TitleStyle Inactive -- Flat
-
-ButtonStyle All Vector 2 0x0@5 0x0@5
-ButtonStyle All ToggledInactive -- Flat
-ButtonStyle All Inactive -- Flat
-
-AddButtonStyle 2 Inactive TiledPixmap closeInactive.png
-AddButtonStyle 2 Active TiledPixmap closeActive.png
-AddButtonStyle 2 ToggledInactive TiledPixmap closeInactive.png
-AddButtonStyle 2 ToggledActive TiledPixmap closeActive.png
-
-# FvwmIdent
-DestroyModuleConfig FvwmIdent:*
-*FvwmIdent: Colorset 10
-*FvwmIdent: Font "xft:Sans:size=10:antialias=True"
-
-# FvwmScript
-DestroyModuleConfig FvwmScript:*
-*FvwmScript: DefaultColorset 10
-
-# FvwmButtons - TopPanel
-DestroyModuleConfig TopPanel:*
-*TopPanel: Geometry $[monitor.$[monitor.primary].width]x24-0+0@p
-*TopPanel: Colorset 10
-*TopPanel: Rows 24
-*TopPanel: Columns $[monitor.$[monitor.primary].width]
-*TopPanel: Frame 0
-*TopPanel: Font "xft:Sans:Bold:size=10:antialias=True"
-*TopPanel: ($[monitor.$[monitor.primary].width]x24, Frame 0, Swallow FvwmApplet-DigitalClock "FvwmScript /home/steven/.fvwm/digitalClock")
-Test (x stalonetray) *TopPanel: (120x24, Swallow(NoClose,UseOld) \
-    stalonetray 'Exec exec stalonetray --config \
-    "$[FVWM_DATADIR]/default-config/stalonetrayrc"', Frame 0)
-*TopPanel: (128x24, Frame 0, Swallow FvwmApplet-BatteryInfo "FvwmScript /home/steven/.fvwm/batteryInfo")
-
-# FvwmEvent
-DestroyModuleConfig EventNewDesk:*
-*EventNewDesk: PassID
-*EventNewDesk: new_desk ChangeDesk
+# Mouse binds
+mouse 3 T A menu menuWindow
+mouse 1 2 A close
+mouse 1 T A raiseMoveDC move maximize
+mouse 1 FS A raiseMove resize

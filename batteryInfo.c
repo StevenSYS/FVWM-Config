@@ -5,48 +5,61 @@
 #define LENGTH_CAPACITY 4
 #define LENGTH_STATUS 16
 
+#define PATH_CAPACITY "/sys/class/power/supply/BAT0/capacity"
+#define PATH_STATUS "/sys/class/power/supply/BAT0/status"
+
+static void errExit() {
+	perror("ERROR: Failed to get battery info");
+	printf("Failed to get info");
+	exit(1);
+	return;
+}
+
 static char *readFile(
 	char *filePath,
 	unsigned char length
 ) {
-	FILE *file = fopen(filePath, "r");
-	char *ret = malloc(length);
+	size_t endPos = 0;
+	char *ret = NULL;
+	FILE *file = NULL;
 	
-	if (
-		ret == NULL ||
-		file == NULL
-	) {
-		return NULL;
+	ret = malloc(length);
+	if (ret == NULL) { errExit(); }
+	
+	file = fopen(filePath, "r");
+	if (file == NULL) {
+		free(ret);
+		errExit();
 	}
 	
 	fgets(ret, length, file);
+	endPos = strnlen(ret, length) - 1;
 	
-	if (ret[strlen(ret) - 1] == '\n') {
-		ret[strlen(ret) - 1] = 0;
+	if (ret[endPos] == '\n') {
+		ret[endPos] = 0;
 	}
+	
+	fclose(file);
 	return ret;
 }
 
 int main() {
-	const char *capacity = readFile(
+	char *capacity;
+	char *status;
+	
+	capacity = readFile(
 		"/sys/class/power_supply/BAT0/capacity",
 		LENGTH_CAPACITY
 	);
-	const char *status = readFile(
+	
+	status = readFile(
 		"/sys/class/power_supply/BAT0/status",
 		LENGTH_STATUS
 	);
 	
-	if (capacity == NULL) {
-		perror("Failed to open the battery capacity file");
-		return 1;
-	}
-	
-	if (status == NULL) {
-		perror("Failed to open the battery status file");
-		return 1;
-	}
-	
 	printf("%s%% - %s\n", capacity, status);
+	
+	free(status);
+	free(capacity);
 	return 0;
 }
