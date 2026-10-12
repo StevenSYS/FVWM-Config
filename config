@@ -1,7 +1,12 @@
 # Options
 read options
 
-infoStoreAdd baseColor #8080FF
+# Desktop
+DesktopConfiguration per-monitor 
+DesktopName 0 Main
+DesktopSize 1x1
+
+# Screen
 
 # `24` is the height of the top panel.
 ewmhBaseStruts screen $[monitor.primary] 0 0 24 0
@@ -33,7 +38,10 @@ style * \
 	hilightcolorset 2, \
 	edgeMoveDelay 90, \
 	edgeMoveResistance 90, \
-	snapAttraction 8 windows
+	snapAttraction 8 windows, \
+	minOverlapPlacement, \
+	grabFocusOff, \
+	!usePPosition
 
 opaqueMoveSize unlimited
 
@@ -85,13 +93,11 @@ menuStyle * \
 destroyFunc startFunction
 addToFunc startFunction
 + i module FvwmButtons topPanel
-+ i module FvwmMFL
 + i test ($[infostore.enablePicom]) \
 	exec picom
 
 destroyFunc initFunction
 addToFunc initFunction
-+ i module FvwmIconMan
 + i exec ~/.fehbg
 
 destroyFunc exitFunction
@@ -147,6 +153,9 @@ test ($[infostore.laptop]) \
 		frame 0, \
 		swallow FvwmApplet-BatteryInfo "FvwmScript batteryInfo 1" \
 	)
+
+destroyModuleConfig FvwmScript:*
+*FvwmScript: DefaultColorset 2
 
 # Keyboard binds
 silent key Tab A M \
